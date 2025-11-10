@@ -94,3 +94,27 @@ variable "NSG" {
     })))
   }))
 }
+variable "Sqlserver" {
+  type = map(object({
+    name                          = string
+    resource_group_name           = string
+    location                      = string
+    version                       = optional(string, "12.0")
+    administrator_login           = string
+    administrator_login_password  = string
+    minimum_tls_version           = optional(string, "1.2")
+    public_network_access_enabled = optional(bool, true)
+    azuread_administrator = optional(object({
+      login_username = string
+      object_id      = string
+    }))
+
+    # 👇 NEW: Multiple Databases per SQL Server
+    databases = optional(map(object({
+      name      = string
+      sku_name  = optional(string, "Basic")
+      max_size_gb = optional(number, 2)
+      collation = optional(string, "SQL_Latin1_General_CP1_CI_AS")
+    })))
+  }))
+}

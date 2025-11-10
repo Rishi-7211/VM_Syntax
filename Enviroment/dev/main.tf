@@ -37,3 +37,7 @@ module "NSG_association"{
   NSG = var.NSG
   depends_on = [ module.resource_group, module.virtual_network ]
 }
+module "sqlserver"{
+  source = "../../Module/azurerm_sql_server"
+  Sqlserver = var.Sqlserver
+}

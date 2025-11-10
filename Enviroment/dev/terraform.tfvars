@@ -101,7 +101,7 @@ vms = {
       sku       = "22_04-lts"
       version   = "latest"
     }
-    
+
   }
   vm2 = {
     nic_name       = "backend_nic_dev"
@@ -124,23 +124,73 @@ vms = {
 }
 NSG = {
   web = {
-    name                = "web-nsg"
-    location            = "Central India"
-    rg_name = "dev-rg-1"
-    vnet_name           = "dev-vnet-1"
-    subnet_name         = "frontendsubnet_dev"
+    name        = "web-nsg"
+    location    = "Central India"
+    rg_name     = "dev-rg-1"
+    vnet_name   = "dev-vnet-1"
+    subnet_name = "frontendsubnet_dev"
 
     security_rule = {
       "allow-ssh" = {
         name                       = "Allow-SSH"
         priority                   = 100
-        direction                   = "Inbound"
-        access                      = "Allow"
-        protocol                    = "Tcp"
-        source_port_range           = "*"
-        destination_port_range      = "22"
-        source_address_prefix       = "*"
-        destination_address_prefix  = "*"
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+      }
+    }
+  }
+}
+
+Sqlserver = {
+  sql1 = {
+    name                         = "mysqlserver987"
+    resource_group_name           = "dev-rg-1"
+    location                      = "Central India"
+    version                       = "12.0"
+    administrator_login           = "Mysqlserver"
+    administrator_login_password  = "Devops@1234"
+    public_network_access_enabled = false
+    minimum_tls_version           = "1.2"
+
+    azuread_administrator = {
+      login_username = "Mysqlserver"
+      object_id      = "00000000-0000-0000-0000-000000000000"
+    }
+
+    databases = {
+      db1 = {
+        name         = "webappdb"
+        sku_name     = "S0"
+        max_size_gb  = 10
+        collation    = "SQL_Latin1_General_CP1_CI_AS"
+      }
+
+      db2 = {
+        name         = "logdb"
+        sku_name     = "Basic"
+        max_size_gb  = 2
+      }
+    }
+  }
+
+  sql2 = {
+    name                         = "mysqlserver-prod"
+    resource_group_name           = "prod-rg"
+    location                      = "East US"
+    administrator_login           = "adminsql"
+    administrator_login_password  = "Prod@1234"
+    public_network_access_enabled = true
+
+    databases = {
+      db1 = {
+        name        = "maindb"
+        sku_name    = "S1"
+        max_size_gb = 50
       }
     }
   }
