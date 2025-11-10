@@ -25,6 +25,7 @@ module "key_vault" {
 module "azurerm_compute" {
   source = "../../Module/azurerm_compute"
   vms    = var.vms
+  NSG    = var.NSG
   depends_on = [
     module.resource_group,
     module.virtual_network,
