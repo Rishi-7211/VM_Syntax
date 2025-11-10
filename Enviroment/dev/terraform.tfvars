@@ -180,8 +180,8 @@ Sqlserver = {
 
   sql2 = {
     name                         = "mysqlserver-prod"
-    resource_group_name           = "prod-rg"
-    location                      = "East US"
+    resource_group_name           = "dev-rg-1"
+    location                      = "Central India"
     administrator_login           = "adminsql"
     administrator_login_password  = "Prod@1234"
     public_network_access_enabled = true
