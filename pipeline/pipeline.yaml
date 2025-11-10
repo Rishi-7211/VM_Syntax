@@ -1,0 +1,46 @@
+trigger: none
+
+pool:
+  name: DevSecops_Agent
+
+stages:
+  - stage: terraform
+    displayName: "Terraform Init, Plan, and Apply"
+    jobs:
+      - job: terraform_job
+        displayName: "Terraform Execution"
+        steps:
+          - task: TerraformInstaller@1
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: 'latest'
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Init"
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/dev'
+              backendServiceArm: 'ADO_Secret1'
+              backendAzureRmResourceGroupName: 'Vaishno_RG'
+              backendAzureRmStorageAccountName: 'vaishnostg'
+              backendAzureRmContainerName: 'vaishnocontainer'
+              backendAzureRmKey: 'Dev.terraform.tfstate'
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Plan"
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/dev'
+              environmentServiceNameAzureRM: 'ADO_Secret1'
+              commandOptions: '-out=tfplan'
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Apply"
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/dev'
+              environmentServiceNameAzureRM: 'ADO_Secret1'
+              commandOptions: 'tfplan -auto-approve'

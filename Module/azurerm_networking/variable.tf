@@ -1,5 +1,4 @@
 variable "virtual_networks" {
-
   type = map(object({
     name                = string
     location            = string
