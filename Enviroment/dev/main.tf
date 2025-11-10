@@ -40,4 +40,5 @@ module "NSG_association"{
 module "sqlserver"{
   source = "../../Module/azurerm_sql_server"
   Sqlserver = var.Sqlserver
+  depends_on = [ var.resource_groups ]
 }
