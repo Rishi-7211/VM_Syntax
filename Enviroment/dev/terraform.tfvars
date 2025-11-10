@@ -122,21 +122,25 @@ vms = {
   }
 }
 NSG = {
-  "Nsg1"= {
-    name = "frontend_NSG_dev"
-    location = "Central India"
-    resource_group_name = "dev-rg-1"
-    security_rule ={
-      name                       = "outbound_Rule"
-      priority                   = 100
-      direction                  = "Inbound"
-      access                      = "Allow"
-      protocol                   = "TCP"
-      source_port_range           = "*"
-      destination_port_range      = "*"
-      source_address_prefix       = "*"
-      destination_address_prefix  = "*"
+  web = {
+    name                = "web-nsg"
+    location            = "Central India"
+    rg_name = "dev-rg-1"
+    vnet_name           = "dev-vnet-1"
+    subnet_name         = "frontendsubnet_dev"
+
+    security_rule = {
+      "allow-ssh" = {
+        name                       = "Allow-SSH"
+        priority                   = 100
+        direction                   = "Inbound"
+        access                      = "Allow"
+        protocol                    = "Tcp"
+        source_port_range           = "*"
+        destination_port_range      = "22"
+        source_address_prefix       = "*"
+        destination_address_prefix  = "*"
+      }
     }
   }
-
 }

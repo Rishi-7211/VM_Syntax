@@ -10,6 +10,7 @@ module "storage_account" {
 module "virtual_network" {
   source           = "../../Module/azurerm_networking"
   virtual_networks = var.virtual_networks
+  NSG = var.NSG
   depends_on       = [module.resource_group]
 }
 module "public_ip" {
@@ -23,9 +24,8 @@ module "key_vault" {
   depends_on = [module.resource_group]
 }
 module "azurerm_compute" {
-  source = "../../Module/azurerm_compute"
-  vms    = var.vms
-  NSG    = var.NSG
+  source  = "../../Module/azurerm_compute"
+  vms     = var.vms
   depends_on = [
     module.resource_group,
     module.virtual_network,
