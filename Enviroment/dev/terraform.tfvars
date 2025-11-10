@@ -157,11 +157,6 @@ Sqlserver = {
     public_network_access_enabled = false
     minimum_tls_version           = "1.2"
 
-    azuread_administrator = {
-      login_username = "Mysqlserver"
-      object_id      = "00000000-0000-0000-0000-000000000000"
-    }
-
     databases = {
       db1 = {
         name         = "webappdb"
@@ -179,11 +174,11 @@ Sqlserver = {
   }
 
   sql2 = {
-    name                         = "mysqlserver-prod"
+    name                         = "mysqlserver-dev"
     resource_group_name           = "dev-rg-1"
     location                      = "Central India"
     administrator_login           = "adminsql"
-    administrator_login_password  = "Prod@1234"
+    administrator_login_password  = "dev@1234"
     public_network_access_enabled = true
 
     databases = {
