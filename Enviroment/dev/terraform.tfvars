@@ -101,6 +101,7 @@ vms = {
       sku       = "22_04-lts"
       version   = "latest"
     }
+    
   }
   vm2 = {
     nic_name       = "backend_nic_dev"
