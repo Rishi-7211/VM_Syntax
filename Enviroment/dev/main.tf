@@ -46,4 +46,5 @@ module "sqlserver"{
 module "aks"{
   source = "../../Module/azurerm_AKS"
   AKS = var.AKS 
+  depends_on = [ module.resource_group ]
 }
