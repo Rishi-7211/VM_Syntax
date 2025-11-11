@@ -190,3 +190,16 @@ Sqlserver = {
     }
   }
 }
+
+AKS = {
+  "cluster1" = {
+    name     = "aks-cluster-eastus"
+    location = "Central India"
+    rg_name  = "dev-rg-1"
+  },
+  "cluster2" = {
+    name     = "aks-cluster-westus"
+    location = "Central India"
+    rg_name  = "dev-rg-1"
+  }
+}
