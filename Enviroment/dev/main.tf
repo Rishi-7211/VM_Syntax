@@ -48,3 +48,10 @@ module "aks"{
   AKS = var.AKS 
   depends_on = [ module.resource_group ]
 }
+
+module "acr" {
+  source = "../../Module/azurerm_ACR"
+  ACR = var.ACR
+  depends_on = [ module.resource_group ]
+  
+}

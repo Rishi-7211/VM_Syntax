@@ -8,6 +8,15 @@ resource_groups = {
     }
     managed_by = "teamA"
   }
+    rg2 = {
+    name     = "dev-rg-2"
+    location = "East US"
+    tags = {
+      environment = "dev"
+      project     = "projectA"
+    }
+    managed_by = "teamA"
+  }
 
 }
 virtual_networks = {
@@ -194,12 +203,17 @@ Sqlserver = {
 AKS = {
   "cluster1" = {
     name     = "aks-cluster-eastus"
-    location = "Central India"
-    rg_name  = "dev-rg-1"
-  },
-  "cluster2" = {
-    name     = "aks-cluster-westus"
-    location = "Central India"
-    rg_name  = "dev-rg-1"
+    location = "East US"
+    rg_name  = "dev-rg-2"
+  }
+}
+ACR = {
+  acr1 = {
+    name              = "devacr7211"
+    rg_name           = "dev-rg-1"
+    location          = "Central India"
+    environment       = "Development"
+    tags              = { Owner = "Rishikesh" }
+    replica_locations = ["East US", "North Europe"]
   }
 }

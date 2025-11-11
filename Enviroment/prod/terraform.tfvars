@@ -8,6 +8,15 @@ resource_groups = {
     }
     managed_by = "teamA"
   }
+    rg2 = {
+    name     = "prod-rg-2"
+    location = "East US"
+    tags = {
+      environment = "prod"
+      project     = "projectA"
+    }
+    managed_by = "teamA"
+  }
 
 }
 virtual_networks = {
@@ -101,6 +110,7 @@ vms = {
       sku       = "22_04-lts"
       version   = "latest"
     }
+
   }
   vm2 = {
     nic_name       = "backend_nic_prod"
@@ -121,6 +131,89 @@ vms = {
     }
   }
 }
+NSG = {
+  web = {
+    name        = "web-nsg"
+    location    = "Central India"
+    rg_name     = "prod-rg-1"
+    vnet_name   = "prod-vnet-1"
+    subnet_name = "frontendsubnet_prod"
 
+    security_rule = {
+      "allow-ssh" = {
+        name                       = "Allow-SSH"
+        priority                   = 100
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+      }
+    }
+  }
+}
 
+Sqlserver = {
+  sql1 = {
+    name                         = "mysqlserver987"
+    resource_group_name           = "prod-rg-1"
+    location                      = "Central India"
+    version                       = "12.0"
+    administrator_login           = "Mysqlserver"
+    administrator_login_password  = "prodops@1234"
+    public_network_access_enabled = false
+    minimum_tls_version           = "1.2"
 
+    databases = {
+      db1 = {
+        name         = "webappdb"
+        sku_name     = "S0"
+        max_size_gb  = 10
+        collation    = "SQL_Latin1_General_CP1_CI_AS"
+      }
+
+      db2 = {
+        name         = "logdb"
+        sku_name     = "Basic"
+        max_size_gb  = 2
+      }
+    }
+  }
+
+  sql2 = {
+    name                         = "mysqlserver-prod"
+    resource_group_name           = "prod-rg-1"
+    location                      = "Central India"
+    administrator_login           = "adminsql"
+    administrator_login_password  = "prod@1234"
+    public_network_access_enabled = true
+
+    databases = {
+      db1 = {
+        name        = "maindb"
+        sku_name    = "S1"
+        max_size_gb = 50
+      }
+    }
+  }
+}
+
+AKS = {
+  "cluster1" = {
+    name     = "aks-cluster-eastus"
+    location = "East US"
+    rg_name  = "prod-rg-2"
+  }
+}
+ACR = {
+  acr1 = {
+    name              = "prodacr7211"
+    rg_name           = "prod-rg-1"
+    location          = "Central India"
+    environment       = "prodelopment"
+    tags              = { Owner = "Rishikesh" }
+    replica_locations = ["East US", "North Europe"]
+  }
+}

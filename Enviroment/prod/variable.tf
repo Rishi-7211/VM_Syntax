@@ -73,3 +73,67 @@ variable "vms" {
     }
   ))
 }
+variable "NSG" {
+  type = map(object({
+    name        = string
+    location    = string
+    rg_name     = string
+    vnet_name   = string
+    subnet_name = string
+
+    security_rule = optional(map(object({
+      name                       = string
+      priority                   = number
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    })))
+  }))
+}
+variable "Sqlserver" {
+  type = map(object({
+    name                          = string
+    resource_group_name           = string
+    location                      = string
+    version                       = optional(string, "12.0")
+    administrator_login           = string
+    administrator_login_password  = string
+    minimum_tls_version           = optional(string, "1.2")
+    public_network_access_enabled = optional(bool, true)
+    azuread_administrator = optional(object({
+      login_username = string
+      object_id      = string
+    }))
+
+    # 👇 NEW: Multiple Databases per SQL Server
+    databases = optional(map(object({
+      name      = string
+      sku_name  = optional(string, "Basic")
+      max_size_gb = optional(number, 2)
+      collation = optional(string, "SQL_Latin1_General_CP1_CI_AS")
+    })))
+  }))
+}
+
+variable "AKS" {
+  type = map(object({
+    name     = string
+    location = string
+    rg_name  = string
+  }))
+}
+
+variable "ACR" {
+  type = map(object({
+    name              = string
+    rg_name           = string
+    location          = string
+    environment       = string
+    tags              = map(string)
+    replica_locations = list(string)
+  }))
+}
