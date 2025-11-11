@@ -8,7 +8,7 @@ resource_groups = {
     }
     managed_by = "teamA"
   }
-    rg2 = {
+  rg2 = {
     name     = "dev-rg-2"
     location = "East US"
     tags = {
@@ -157,7 +157,7 @@ NSG = {
 
 Sqlserver = {
   sql1 = {
-    name                         = "mysqlserver987"
+    name                          = "mysqlserver987"
     resource_group_name           = "dev-rg-1"
     location                      = "Central India"
     version                       = "12.0"
@@ -168,10 +168,10 @@ Sqlserver = {
 
     databases = {
       db1 = {
-        name         = "webappdb"
-        sku_name     = "S0"
-        max_size_gb  = 10
-        collation    = "SQL_Latin1_General_CP1_CI_AS"
+        name        = "webappdb"
+        sku_name    = "S0"
+        max_size_gb = 10
+        collation   = "SQL_Latin1_General_CP1_CI_AS"
       }
     }
   }
@@ -186,11 +186,13 @@ AKS = {
 }
 ACR = {
   acr1 = {
-    name              = "devacr7211"
-    rg_name           = "dev-rg-1"
-    location          = "Central India"
-    environment       = "Development"
-    tags              = { Owner = "Rishikesh" }
+    name        = "devacr7211"
+    rg_name     = "dev-rg-1"
+    location    = "Central India"
+    environment = "Development"
+    tags = {
+      Owner = "Rishikesh"
+    }
     replica_locations = ["East US", "North Europe"]
   }
 }
