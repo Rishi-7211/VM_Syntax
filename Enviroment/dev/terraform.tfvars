@@ -173,29 +173,6 @@ Sqlserver = {
         max_size_gb  = 10
         collation    = "SQL_Latin1_General_CP1_CI_AS"
       }
-
-      db2 = {
-        name         = "logdb"
-        sku_name     = "Basic"
-        max_size_gb  = 2
-      }
-    }
-  }
-
-  sql2 = {
-    name                         = "mysqlserver-dev"
-    resource_group_name           = "dev-rg-1"
-    location                      = "Central India"
-    administrator_login           = "adminsql"
-    administrator_login_password  = "dev@1234"
-    public_network_access_enabled = true
-
-    databases = {
-      db1 = {
-        name        = "maindb"
-        sku_name    = "S1"
-        max_size_gb = 50
-      }
     }
   }
 }
