@@ -27,8 +27,6 @@ variables:
 stages:
 - stage: PreCommit
   displayName: Pre-Commit / Static Analysis Stage
-  pool:
-    name: DevSecops_Agent
   jobs:
   - job: TerraformValidate
     displayName: Terraform Validate
@@ -102,8 +100,6 @@ stages:
   jobs:
   - job: TerraformPlan
     displayName: Terraform Plan
-    pool:
-      name: DevSecops_Agent
     steps:
     - task: TerraformTask@5
       displayName: Terraform Init
@@ -149,8 +145,6 @@ stages:
   jobs:
   - job: TerraformApply
     displayName: Terraform Apply
-    pool:
-      name: DevSecops_Agent
     steps:
     - task: TerraformTask@5
       displayName: Terraform Init
