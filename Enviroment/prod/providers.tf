@@ -5,15 +5,15 @@ terraform {
       version = "4.51.0"
     }
   }
-  backend "azurerm" {
-    resource_group_name  = "Vaishno_RG"
-    storage_account_name = "vaishnostg"
-    container_name       = "vaishnocontainer"
-    key                  = "Dev.terraform.tfstate"
+backend "azurerm" {
+    resource_group_name  = "Vaishno-RG"
+    storage_account_name = "vaishnostg1"
+    container_name       = "vaishnocontainer1"
+    key                  = "prod.terraform.tfstate"
   }
 }
 provider "azurerm" {
   features {}
-  subscription_id = "7358504b-783d-43c0-98fb-0683329db2ad"
+  subscription_id = "1f8db4a8-6e28-4a4d-a2fe-79d018ba6298"
 }
 
