@@ -8,75 +8,86 @@ pool:
   name: DevSecops_Agent
 
 stages:
-  - stage: Terraform_Installation_Init
-    displayName: "Terraform Init, Plan, and Apply"
+  - stage: Scaning
+    displayName: tfsec
     jobs:
-      - job: TerraformInstallation
-        displayName: Terraform Installation
+      - job: Tfsec
+        displayName: Tfsec
         steps:
-        - task: TerraformInstaller@1
-          displayName: Terraform Installation
+        - task: tfsec@1
           inputs:
-            terraformVersion: 'latest'
+            version: 'v1.26.0'
+            args: 'tfsec .'
+            dir: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  # - stage: Terraform_Installation_Init
+  #   displayName: "Terraform Init, Plan, and Apply"
+  #   jobs:
+  #     - job: TerraformInstallation
+  #       displayName: Terraform Installation
+  #       steps:
+  #       - task: TerraformInstaller@1
+  #         displayName: Terraform Installation
+  #         inputs:
+  #           terraformVersion: 'latest'
 
-        - task: TerraformTask@5
-          displayName: Terraform Init
-          inputs:
-            provider: 'azurerm'
-            command: 'init'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-            backendServiceArm: 'Federation Based'
-            backendAzureRmResourceGroupName: 'Vaishno-RG'
-            backendAzureRmStorageAccountName: 'vaishnostg1'
-            backendAzureRmContainerName: 'vaishnocontainer1'
-            backendAzureRmKey: 'Dev.terraform.tfstate'
+  #       - task: TerraformTask@5
+  #         displayName: Terraform Init
+  #         inputs:
+  #           provider: 'azurerm'
+  #           command: 'init'
+  #           workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  #           backendServiceArm: 'Federation Based'
+  #           backendAzureRmResourceGroupName: 'Vaishno-RG'
+  #           backendAzureRmStorageAccountName: 'vaishnostg1'
+  #           backendAzureRmContainerName: 'vaishnocontainer1'
+  #           backendAzureRmKey: 'Dev.terraform.tfstate'
 
-        - task: PublishPipelineArtifact@1
-          displayName: Publish Terraform Files
-          inputs:
-            targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-            artifact: 'Terraform_config'
+  #       - task: PublishPipelineArtifact@1
+  #         displayName: Publish Terraform Files
+  #         inputs:
+  #           targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  #           artifact: 'Terraform_config'
 
-  - stage: Terraform_Plan
-    displayName: "Terraform Plan"
-    dependsOn: Terraform_Installation_Init
-    condition: succeeded('Terraform_Installation_Init')
-    jobs: 
-      - job: Terraform_Plan
-        displayName: Terraform Plan
-        steps:
-        - task: DownloadPipelineArtifact@2
-          displayName: Download Terraform Files
-          inputs:
-            artifact: 'Terraform_config'
-            targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  # - stage: Terraform_Plan
+  #   displayName: "Terraform Plan"
+  #   dependsOn: Terraform_Installation_Init
+  #   condition: succeeded('Terraform_Installation_Init')
+  #   jobs: 
+  #     - job: Terraform_Plan
+  #       displayName: Terraform Plan
+  #       steps:
+  #       - task: DownloadPipelineArtifact@2
+  #         displayName: Download Terraform Files
+  #         inputs:
+  #           artifact: 'Terraform_config'
+  #           targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
 
-        - task: TerraformTask@5
-          displayName: Terraform Plan
-          inputs:
-            provider: 'azurerm'
-            command: 'plan'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-            environmentServiceNameAzureRM: 'Federation Based'
+  #       - task: TerraformTask@5
+  #         displayName: Terraform Plan
+  #         inputs:
+  #           provider: 'azurerm'
+  #           command: 'plan'
+  #           workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  #           environmentServiceNameAzureRM: 'Federation Based'
 
-  - stage: Terraform_Apply
-    displayName: "Terraform Apply"
-    dependsOn: Terraform_Plan
-    condition: succeeded('Terraform_Plan')
-    jobs:
-      - job: Terraform_Apply
-        displayName: Terraform Apply
-        steps:
-        - task: DownloadPipelineArtifact@2
-          displayName: Download Terraform Files
-          inputs:
-            artifact: 'Terraform_config'
-            targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-        - task: TerraformTask@5
-          displayName: Terraform Apply
-          inputs:
-            provider: 'azurerm'
-            command: 'apply'
-            workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-            commandOptions: '--auto-approve'
-            environmentServiceNameAzureRM: 'Federation Based'
+  # - stage: Terraform_Apply
+  #   displayName: "Terraform Apply"
+  #   dependsOn: Terraform_Plan
+  #   condition: succeeded('Terraform_Plan')
+  #   jobs:
+  #     - job: Terraform_Apply
+  #       displayName: Terraform Apply
+  #       steps:
+  #       - task: DownloadPipelineArtifact@2
+  #         displayName: Download Terraform Files
+  #         inputs:
+  #           artifact: 'Terraform_config'
+  #           targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  #       - task: TerraformTask@5
+  #         displayName: Terraform Apply
+  #         inputs:
+  #           provider: 'azurerm'
+  #           command: 'apply'
+  #           workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+  #           commandOptions: '--auto-approve'
+  #           environmentServiceNameAzureRM: 'Federation Based'
