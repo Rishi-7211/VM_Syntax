@@ -1,4 +1,8 @@
-trigger: none
+trigger:
+   branches:
+    include:
+      - main
+      - feature/*
 
 pool:
   name: DevSecops_Agent
@@ -21,10 +25,10 @@ stages:
             provider: 'azurerm'
             command: 'init'
             workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-            backendServiceArm: 'Federation_based_Connection'
-            backendAzureRmResourceGroupName: 'Vaishno_RG'
-            backendAzureRmStorageAccountName: 'vaishnostg'
-            backendAzureRmContainerName: 'vaishnocontainer'
+            backendServiceArm: 'Federation Based'
+            backendAzureRmResourceGroupName: 'Vaishno-RG'
+            backendAzureRmStorageAccountName: 'vaishnostg1'
+            backendAzureRmContainerName: 'vaishnocontainer1'
             backendAzureRmKey: 'Dev.terraform.tfstate'
 
         - task: PublishPipelineArtifact@1
@@ -53,7 +57,7 @@ stages:
             provider: 'azurerm'
             command: 'plan'
             workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-            environmentServiceNameAzureRM: 'Federation_based_Connection'
+            environmentServiceNameAzureRM: 'Federation Based'
 
   - stage: Terraform_Apply
     displayName: "Terraform Apply"
@@ -75,4 +79,4 @@ stages:
             command: 'apply'
             workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
             commandOptions: '--auto-approve'
-            environmentServiceNameAzureRM: 'Federation_based_Connection'
+            environmentServiceNameAzureRM: 'Federation Based'
