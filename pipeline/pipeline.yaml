@@ -1,117 +1,172 @@
-trigger: none
-  # branches:
-  #   include:
-  #     - main
-  #     - feature/*
-
 pool:
   name: DevSecops_Agent
-
+trigger:
+  branches:
+    include:
+    - main
+    - feature/*
+  paths:
+    include:
+    - environment/dev
+    - environment/prod
+parameters:
+- name: environment
+  displayName: Environment
+  type: string
+  default: dev
+  values:
+  - dev
+  - prod
+variables:
+- name: WORK_DIR
+  value: '$(System.DefaultWorkingDirectory)/environment/dev'
+- name: SERVICE_CONNECTION_NAME
+  value: 'Federation Based'
+- name: BACKEND_KEY
+  value: dev.tfstate
 stages:
-# =========================
-# Stage 1: Init + Scan
-# =========================
-- stage: Terraform_Installation_Init
-  displayName: "Terraform Init, TFLint, TFsec"
+- stage: PreCommit
+  displayName: Pre-Commit / Static Analysis Stage
+  pool:
+    name: DevSecops_Agent
   jobs:
-    - job: TerraformInstallation
-      displayName: Terraform Installation & Scan
-      steps:
-
-      - task: TerraformInstaller@1
-        displayName: Terraform Installation
-        inputs:
-          terraformVersion: 'latest'
-
-      - task: TerraformTask@5
-        displayName: Terraform Init
-        inputs:
-          provider: 'azurerm'
-          command: 'init'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-          backendServiceArm: 'Federation Based'
-          backendAzureRmResourceGroupName: 'Vaishno-RG'
-          backendAzureRmStorageAccountName: 'vaishnostg1'
-          backendAzureRmContainerName: 'vaishnocontainer1'
-          backendAzureRmKey: 'Dev.terraform.tfstate'
-
-      # -------- TFLint --------
-      - script: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-          tflint --version
-        displayName: Install TFLint
-
-      - script: |
-          cd $(System.DefaultWorkingDirectory)/Enviroment/dev
-          tflint --init
-          tflint
-        displayName: Run TFLint
-
-      # -------- TFsec --------
-      - script: |
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
-          tfsec --version
-        displayName: Install TFsec
-
-      - script: |
-          tfsec $(System.DefaultWorkingDirectory)/Enviroment/dev
-        displayName: Run TFsec Security Scan
-
-      - task: PublishPipelineArtifact@1
-        displayName: Publish Terraform Files
-        inputs:
-          targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-          artifact: 'Terraform_config'
-
-# =========================
-# Stage 2: Terraform Plan
-# =========================
-- stage: Terraform_Plan
-  displayName: "Terraform Plan"
-  dependsOn: Terraform_Installation_Init
-  condition: succeeded('Terraform_Installation_Init')
+  - job: TerraformValidate
+    displayName: Terraform Validate
+    steps:
+    - task: TerraformTask@5
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(WORK_DIR)'
+        backendServiceArm: '$(SERVICE_CONNECTION_NAME)'
+        backendAzureRmStorageAccountName: 'vaishnostg1'
+        backendAzureRmContainerName: 'vaishnocontainer1'
+        backendAzureRmKey: '$(BACKEND_KEY)'
+    - task: TerraformTask@5
+      displayName: Terraform Validate
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(WORK_DIR)'
+  - job: TerraformFmt
+    dependsOn:
+    - TerraformValidate
+    displayName: Terraform Fmt
+    steps:
+    - task: TerraformTask@5
+      displayName: Terraform Fmt
+      inputs:
+        provider: 'azurerm'
+        command: 'custom'
+        workingDirectory: '$(WORK_DIR)'
+        outputTo: 'console'
+        customCommand: 'fmt'
+        environmentServiceNameAzureRM: '$(SERVICE_CONNECTION_NAME)'
+  - job: tfsec
+    dependsOn:
+    - TerraformFmt
+    displayName: TfSec Scan
+    steps:
+    - task: tfsec@1
+      inputs:
+        version: 'v1.26.0'
+        dir: '$(WORK_DIR)'
+  - job: tflint
+    dependsOn:
+    - tfsec
+    displayName: TFLint Scan
+    steps:
+    - task: PowerShell@2
+      continueOnError: true
+      inputs:
+        targetType: 'inline'
+        script: "winget install TerraformLinters.tflint     \nls   \ntflint\n"
+        errorActionPreference: 'continue'
+        workingDirectory: '$(WORK_DIR)'
+- stage: costStage
+  dependsOn:
+  - PreCommit
+  displayName: Cost & Impact Assessment Stage
   jobs:
-    - job: Terraform_Plan
+  - job: InfraCost
+    displayName: InfraCost
+    steps:
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: 'infracost breakdown --path=$(System.DefaultWorkingDirectory)/environment/dev'
+        workingDirectory: '$(WORK_DIR)'
+- stage: plan
+  displayName: Plan & Review Stage
+  jobs:
+  - job: TerraformPlan
+    displayName: Terraform Plan
+    pool:
+      name: DevSecops_Agent
+    steps:
+    - task: TerraformTask@5
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(WORK_DIR)'
+        backendServiceArm: '$(SERVICE_CONNECTION_NAME)'
+        backendAzureRmStorageAccountName: 'strgadi01'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: '$(BACKEND_KEY)'
+    - task: TerraformTask@5
       displayName: Terraform Plan
-      steps:
-
-      - task: DownloadPipelineArtifact@2
-        displayName: Download Terraform Files
-        inputs:
-          artifact: 'Terraform_config'
-          targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-
-      - task: TerraformTask@5
-        displayName: Terraform Plan
-        inputs:
-          provider: 'azurerm'
-          command: 'plan'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-          environmentServiceNameAzureRM: 'Federation Based'
-
-# =========================
-# Stage 3: Terraform Apply
-# =========================
-- stage: Terraform_Apply
-  displayName: "Terraform Apply"
-  dependsOn: Terraform_Plan
-  condition: succeeded('Terraform_Plan')
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(WORK_DIR)'
+        environmentServiceNameAzureRM: '$(SERVICE_CONNECTION_NAME)'
+    - task: PowerShell@2
+      displayName: Plan Cost
+      inputs:
+        targetType: 'inline'
+        script: '''infracost breakdown --path=tfplan.binary'''
+        workingDirectory: '$(WORK_DIR)'
+- stage: approval
+  dependsOn:
+  - plan
+  displayName: Approval & Governance Stage
   jobs:
-    - job: Terraform_Apply
+  - job: ManualApproval
+    displayName: Manual Approval
+    pool:
+      name: server
+    steps:
+    - task: ManualValidation@1
+      inputs:
+        notifyUsers: 'srishikesh39@gmail.com'
+        approvers:   'srishikesh39@gmail.com'
+- stage: apply
+  dependsOn:
+  - approval
+  displayName: Deploy / Apply Stage
+  jobs:
+  - job: TerraformApply
+    displayName: Terraform Apply
+    pool:
+      name: DevSecops_Agent
+    steps:
+    - task: TerraformTask@5
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(WORK_DIR)'
+        backendServiceArm: '$(SERVICE_CONNECTION_NAME)'
+        backendAzureRmStorageAccountName: 'vaishnostg1'
+        backendAzureRmContainerName: 'vaishnocontainer1'
+        backendAzureRmKey: '$(BACKEND_KEY)'
+    - task: TerraformTask@5
       displayName: Terraform Apply
-      steps:
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(WORK_DIR)'
+        environmentServiceNameAzureRM: '$(SERVICE_CONNECTION_NAME)'
 
-      - task: DownloadPipelineArtifact@2
-        displayName: Download Terraform Files
-        inputs:
-          artifact: 'Terraform_config'
-          targetPath: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-
-      - task: TerraformTask@5
-        displayName: Terraform Apply
-        inputs:
-          provider: 'azurerm'
-          command: 'apply'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
-          commandOptions: '--auto-approve'
-          environmentServiceNameAzureRM: 'Federation Based'
