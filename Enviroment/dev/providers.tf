@@ -7,14 +7,14 @@ terraform {
     }
   }
   backend "azurerm" {
-    resource_group_name  = "Vaishno-RG"
-    storage_account_name = "vaishnostg1"
-    container_name       = "vaishnocontainer1"
+    resource_group_name  = "MotoRG"
+    storage_account_name = "motostorageaccount98"
+    container_name       = "moto-container"
     key                  = "Dev.terraform.tfstate"
   }
 }
 provider "azurerm" {
   features {}
-  subscription_id = "1f8db4a8-6e28-4a4d-a2fe-79d018ba6298"
+  subscription_id = "c83e7967-42e9-4d03-8751-f614e751e7bc"
 }
 
