@@ -1,0 +1,22 @@
+trigger: none
+
+pool: DevSecops_Agent
+
+variables:
+ - group: New variable group 03-Mar
+
+stages:
+  - stage: terraformInit
+    jobs:
+      - job: TerrafromInit
+        steps:
+        - task: TerraformTask@5
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/Enviroment/dev'
+            backendServiceArm: 'Azure_DevOps1'
+            backendAzureRmResourceGroupName: 'MotoRG'
+            backendAzureRmStorageAccountName: '$(rancho121)'
+            backendAzureRmContainerName: 'moto-container'
+            backendAzureRmKey: 'Dev.terraform.tfstate'
